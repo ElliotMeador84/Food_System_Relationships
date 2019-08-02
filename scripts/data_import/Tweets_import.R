@@ -1,27 +1,43 @@
 library(tidyverse)
 library(rtweet)
 library(lubridate)
-source('~/all_functions.R')
+
 
 
 flatten <- purrr::flatten
 
-# Twitter log in info -----------------------------------------------------
+# Twitter log in info ---------
 
 op_is_window <- Sys.info()[1] == "Windows"
 
 if(op_is_window == T){
     source("C:/R/Source_files/Food_System_Relationships/keys/twitter_key.R")
 } else {
-    'Need to set up other token'
+    source('/Users/johne.meador/Documents/R/twitter_key.R')
 }
 
 
-# CSA List  ---------------------------------------------------------
 
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData')
+if(op_is_window == T){
+    source('~/all_functions.R')
+} else {
+    source('~/Downloads/all_functions.R')
+}
 
-# Import stakeholder list -------------------------------------------------
+
+# CSA List  -----------
+
+
+
+if(op_is_window == T){
+    load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData')
+} else {
+    load('/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData')
+}
+
+
+
+# Import stakeholder list -------------
 
 
 
@@ -35,7 +51,7 @@ profile_timeline_df <- map_df(profile_ls, possibly(function(x) {
         filter(diff_time >= -3)
 }, NULL))
 
-# Pull Mentions ---------------------------------------------
+# Pull Mentions --------------
 
 
 
@@ -64,7 +80,7 @@ first_mentions_df <- map_df(first_mentions, possibly(function(x) {
 }, NULL))
 
 
-# Merge -------------------------------------------------------------------
+# Merge -----------------
 
 CSA_tweets_update <- bind_rows(
     profile_timeline_df %>%
@@ -83,10 +99,14 @@ CSA_tweets_update <- bind_rows(
     distinct()
 
 
-# Merge with existing -----------------------------------------------------
+# Merge with existing -----------
 
+if(op_is_window == T){
+    load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/CSA_tweets.RData')
+} else {
+    load('/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/CSA_tweets.RData')
+}
 
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/CSA_tweets.RData')
 
 
 CSA_tweets <-
@@ -95,8 +115,14 @@ CSA_tweets <-
     distinct()
 
 
+if(op_is_window == T){
+    
 save(CSA_tweets,
      file = 'C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/CSA_tweets.RData')
+} else {
+save(CSA_tweets,
+     file = '/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/CSA_tweets.RData')
+}
 
 rm(list = ls())
 
