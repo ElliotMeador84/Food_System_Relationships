@@ -5,7 +5,7 @@ library(lubridate)
 op_is_window <- Sys.info()[1] == "Windows"
 
 if (op_is_window == T) {
-    source('~/all_functions.R')
+    source('C:/R/all_functions.R')
 } else {
     source('~/Downloads/all_functions.R')
 }
@@ -124,7 +124,11 @@ Tweets_mention <-
               Tweets_mention_new) %>%
     distinct()
 
-
+if(op_is_window == T){
+    save(Tweets_mention, file = 'C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+} else {
+    save(Tweets_mention, file = '/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+}
 
 save(Tweets_mention,
      file = '/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
