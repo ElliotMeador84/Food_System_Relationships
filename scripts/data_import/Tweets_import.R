@@ -23,7 +23,7 @@ if(op_is_window == T){
 
 
 if(op_is_window == T){
-    source('~/all_functions.R')
+    source('C:/R/all_functions.R')
 } else {
     source('~/Downloads/all_functions.R')
 }

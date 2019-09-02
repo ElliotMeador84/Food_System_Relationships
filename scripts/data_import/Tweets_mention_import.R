@@ -5,7 +5,7 @@ library(lubridate)
 op_is_window <- Sys.info()[1] == "Windows"
 
 if (op_is_window == T) {
-    source('~/all_functions.R')
+    source('C:/R/all_functions.R')
 } else {
     source('~/Downloads/all_functions.R')
 }
@@ -43,14 +43,14 @@ if (op_is_window == T) {
 
 tweets_timeline_df <- map_df(profile_ls,
             possibly(function(x) {
-            search_tweets(x, n = 5,
+            search_tweets(x, n = 15,
             retryonratelimit = T) %>%
             mutate(
                     date = date(created_at),
                     current_time = Sys.Date(),
                     diff_time = date - current_time
                     ) %>%
-                    filter(diff_time >= -3)
+                    filter(diff_time >= -5)
                     }, NULL))
 
 
@@ -73,14 +73,14 @@ first_mentions <- tweets_timeline_df %>%
 
 first_mentions_df <- map_df(first_mentions, possibly(function(x) {
     search_tweets(x,
-                  n = 5,
+                  n = 15,
                   retryonratelimit = T) %>%
         mutate(
             date = date(created_at),
             current_time = Sys.Date(),
             diff_time = date - current_time
         ) %>%
-        filter(diff_time >= -3)
+        filter(diff_time >= -5)
 }, NULL))
 
 
@@ -125,10 +125,15 @@ Tweets_mention <-
               Tweets_mention_new) %>%
     distinct()
 
+if(op_is_window == T){
+    save(Tweets_mention, file = 'C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+} else {
+    save(Tweets_mention, file = '/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+}
 
 
-save(Tweets_mention,
-     file = '/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+
+
 
 
 rm(list = ls())

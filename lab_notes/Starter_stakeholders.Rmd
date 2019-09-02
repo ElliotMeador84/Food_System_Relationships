@@ -1,0 +1,227 @@
+---
+title: "T-Grains Starter Stakeholders"
+author: "Dr Elliot Meador"
+date: "10/05/2019"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(kableExtra)
+library(lubridate)
+library(plotly)
+
+load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/CSA_tweets.RData')
+
+load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData')
+
+load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+
+load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/GB_fortify.RData')
+
+load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/UK_postcodes.RData')
+
+load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/stakeholder_location.RData')
+
+source('C:/Users/emeador/Downloads/all_functions.R')
+starter_stakeholders <- flatten_chr(profile_ls) %>% 
+  str_remove('@')
+
+
+```
+
+# Starter stakeholders
+
+## Overview
+
+The CSA_tweets database holds the *starter-stakeholders* data and their first - degree tie information. There are `r length(starter_stakeholders)` starter-stakeholders, or users whose accounts are used to start the data collection process. The CSA_tweets database has the following structure (in addition to a substantial amount of other data which is reviewed in later sections).
+
+The majority of the starter-stakeholders are CSA's though not all. There are several major ***broker*** users in the network. These are users who help promote and advocate for small-holder argriculture and sustainable/organic food systems. An example of one broker in the starter-stakeholders group is the CSANetwork. 
+
+## Starter-Stakeholders
+The table below details the general structure of the data after a bit of processing is done. We first pull the user's screen name and their tweets. Then, we pull all the mentioned users from the tweet (names that start with the '@' symbol). We then create one row for each distinct screen name, tweet and mentioned screen name. This forms a natural edgelist that is used to make the network graphs. The tweets, which connect the screen names and the mentioned screen names, can be analysed using text mining (natural language process, sentiment analysis, etc.)
+
+```{r, echo=F, message=F, warning=F}
+
+CSA_tweets %>% 
+  filter(screen_name %in% starter_stakeholders) %>% 
+  seperate_mentions() %>% 
+  add_dates() %>% 
+  filter(year >= 2019) %>% 
+  select(screen_name, 
+         text, 
+         mentions_screen_name) %>% 
+  sample_n(5) %>% 
+  kable(caption = 'Random Sample of 5 starter-stakeholders and their first-degree tie') %>% 
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T)
+
+```
+
+## Tweets over time
+
+
+```{r, echo=F, message=F, warning=F}
+library(tidyverse)
+library(ggrepel)
+library(scales)
+library(lubridate)
+library(glue)
+
+tot_tweet <- comma(nrow(CSA_tweets))
+date <- as_date(Sys.Date())
+month_date <- month(date, label = T, abbr = F)
+day_date <- day(date)
+year_date <- year(date)
+
+
+annotation_text <- glue('As of {day_date} {month_date} {year_date} there are {tot_tweet} tweets in the core database.')                   
+     
+CSA_tweets %>% 
+    mutate(week = floor_date(created_at, 'week'), 
+           week = as_date(week)) %>% 
+    count(week) %>% 
+    arrange(week) %>% 
+    mutate(cumsum  = cumsum(n)) %>% 
+    ggplot(aes(week, cumsum))+
+    geom_line(size = 1.35, alpha = .85)+
+    geom_point(size = 5, alpha = .85)+
+    geom_text(aes(label = n), nudge_x = 5.25, nudge_y = -165)+
+    theme_bw()+
+    scale_x_date(date_labels = '%b %y')+
+    scale_y_continuous(labels = comma)+
+    theme(panel.grid = element_blank())+
+    labs(title = 'Cumulative # of Tweets in Core', 
+         x = NULL, 
+         y = 'Weekly\ncumulative growth', 
+         caption = annotation_text)
+```
+
+We have collected `r tot_tweet` tweets from starting stakeholders.
+
+
+
+```{r, echo=F, message=F, warning=F}
+
+stake_cols <- Set2_n(length(starter_stakeholders))
+
+names(stake_cols) <- starter_stakeholders
+
+Tweets_Starter_Stakeholder_week <- CSA_tweets %>% 
+  filter(screen_name %in% starter_stakeholders) %>% 
+  add_dates() %>% 
+  filter(year >= 2019) %>% 
+  count(week, screen_name)
+```
+On average, starter-stakeholders tweet about `r Tweets_Starter_Stakeholder_week %>% summarise(ave = round(mean(n, na.rm = T),2)) %>% pull(ave)` times per week. Though some tweet, on average, as many as `r Tweets_Starter_Stakeholder_week %>% summarise(ave = round(max(n, na.rm = T),2)) %>% pull(ave)` and some as low as `r Tweets_Starter_Stakeholder_week %>% summarise(ave = round(min(n, na.rm = T),2)) %>% pull(ave)`. The figure below shows the number of tweets per week for each starting-stakeholder. The figure is interactive, and a guide is shown in the upper right-hand corner.
+
+```{r plotly_graph, echo=F, message=F, warning=F}
+Tweets_Starter_Stakeholder_week_g <-    Tweets_Starter_Stakeholder_week %>% 
+  ggplot(aes(week, n, color = screen_name, group = screen_name))+
+  geom_line(size = 1, show.legend = F)+
+  geom_point(size = 3, 
+         show.legend = F)+
+  scale_color_manual(values = stake_cols)+
+  labs(title = 'Starter-stakeholders tweets over time', 
+       subtitle = paste(min(CSA_tweets$created_at), 'through to', max(CSA_tweets$ created_at)))+
+  theme_bw()
+
+plotly::ggplotly(Tweets_Starter_Stakeholder_week_g)
+```
+We started pulling down tweets on the 12th week in 2019, early March. There is a great deal of varibility of number of tweets for each starter-stakeholders. Some, like `r Tweets_Starter_Stakeholder_week %>% group_by(screen_name) %>% summarise(total = sum(n)) %>% top_n(-1) %>% slice(1) %>% pull(screen_name)` have tweeted a total of `r Tweets_Starter_Stakeholder_week %>% group_by(screen_name) %>% summarise(total = sum(n)) %>% top_n(-1) %>% slice(1) %>% pull(total)` times since data collection started. Others are quite prolific tweeters, with `r Tweets_Starter_Stakeholder_week %>% group_by(screen_name) %>% summarise(total = sum(n)) %>% top_n(1) %>% slice(1) %>% pull(screen_name)` having tweeted `r Tweets_Starter_Stakeholder_week %>% group_by(screen_name) %>% summarise(total = sum(n)) %>% top_n(1) %>% slice(1) %>% pull(total)` times since data collection started. Some variability in number of tweets can be explained by whether or not the starter-stakeholder is a information broker or not. Brokers tend to tweet much more often. 
+
+
+
+```{r, echo=F, message=F, warning=F}
+
+
+# Merge files -------------------
+
+
+stakeholder_location <- stakeholder_location %>% 
+  mutate(postcode_area = str_sub(post, 1,2) %>% 
+           str_to_upper()) %>% 
+  right_join(UK_postcodes %>% 
+               select(postcode_area, 
+                      long = longitude, 
+                      lat = latitude, 
+                      easting, 
+                      northing, country)) %>% 
+  group_by(screen_name) %>% 
+  mutate_at(vars(long:northing), list(~mean(., na.rm = T))) %>% 
+  ungroup() %>% 
+  select(screen_name, post, long:northing, country) %>% 
+  distinct()
+
+
+starter_stakeholders <- profile_ls %>% 
+  flatten_chr() %>% 
+  str_sub(2)
+
+
+starter_stakeholder_activity <-  CSA_tweets %>% 
+   bind_rows(Tweets_mention) %>% 
+   add_dates() %>% 
+   filter(year >= 2019) %>% 
+   seperate_mentions() %>% 
+   select(screen_name, mentions_screen_name) %>% 
+   gather(key, screen_name) %>% 
+   filter(screen_name %in% starter_stakeholders) %>% 
+   count(screen_name)
+
+
+stakeholer_loc_n <- stakeholder_location %>% 
+  left_join(starter_stakeholder_activity) %>% 
+  drop_na(n)
+```  
+
+## Starter-stakeholder geography
+
+Most of the starker-stakeholders are located in England, with about `r stakeholder_location %>% count(country, sort = T) %>% mutate(prop = scales::percent(n/sum(n))) %>% slice(1) %>% pull(prop)`. Scotland is second with about `r stakeholder_location %>% count(country, sort = T) %>% mutate(prop = scales::percent(n/sum(n))) %>% slice(2) %>% pull(prop)`. There are three in Wales and one in Northern Ireland. Some locations are shown in the map below.
+
+
+```{r, echo=F, message=F, warning=F, fig.width=10, fig.height=10}
+
+
+p <- ggplot()+
+  geom_polygon(data = GB_fortify, 
+               aes(long, lat, group = group), 
+               fill = 'white', 
+               color = 'grey', 
+               size = .25)+
+  geom_point(data = stakeholer_loc_n, 
+             aes(long, lat+.225, size = n, 
+                 color = screen_name))+
+  geom_text(data = stakeholer_loc_n, 
+             aes(long, lat+.225, 
+                 label = screen_name), 
+            color = 'black', 
+            size = 2.25, 
+            check_overlap = T, 
+            nudge_x = .15, 
+            nudge_y = .15)+
+  scale_x_continuous(limits = c(-8.5, 2.5))+
+  scale_size(name = 'Activity')+
+  scale_color_manual(values = stake_cols, guide = F)+
+  theme_minimal()+
+  coord_map()+
+  labs(title = 'Online Activity in 2019', 
+       subtitle = 'Measured by tweets + mentions')
+
+p
+
+
+```
+
+
+
+
