@@ -20,21 +20,30 @@ library(kableExtra)
 library(lubridate)
 library(plotly)
 
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/CSA_tweets.RData')
+op_is_window <- Sys.info()[1] == "Windows"
 
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData')
+if(op_is_window == TRUE){
+  windows_data <- list.files('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data',
+                         pattern = '.RData$', 
+                         full.names = T)
+    for(i in seq_along(windows_data)){
+    load(windows_data[[i]])
+  }
+  source('C:/Users/emeador/Downloads/all_functions.R')
+} else {
+  mac_data <- list.files('~/OneDrive - SRUC/Food_System_Relationships/data', 
+                         pattern = '.RData$', 
+                         full.names = T)
+  for(i in seq_along(mac_data)){
+    load(mac_data[[i]])
+  }
+  source('~/Downloads/all_functions.R')
+}
 
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
 
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/GB_fortify.RData')
-
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/UK_postcodes.RData')
-
-load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/stakeholder_location.RData')
-
-source('C:/Users/emeador/Downloads/all_functions.R')
 starter_stakeholders <- flatten_chr(profile_ls) %>% 
   str_remove('@')
+
 
 
 ```
