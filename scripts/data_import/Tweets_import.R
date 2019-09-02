@@ -2,6 +2,9 @@ library(tidyverse)
 library(rtweet)
 library(lubridate)
 
+message('  Recieved this error when the token was created for other projects --\n\nError in file(file, mode) : cannot open the connection
+In addition: Warning message:
+In file(file, mode) :\n\n  Need to consider whether or not it is neccesary to authenticate each time.')
 
 
 flatten <- purrr::flatten
@@ -12,9 +15,10 @@ op_is_window <- Sys.info()[1] == "Windows"
 
 if(op_is_window == T){
     source("C:/R/Source_files/Food_System_Relationships/keys/twitter_key.R")
-} else {
-    source('/Users/johne.meador/Documents/R/twitter_key.R')
-}
+} 
+# else {
+#     source("~/Documents/R/twitter_key.R")
+# }
 
 
 

@@ -18,9 +18,10 @@ flatten <- purrr::flatten
 
 if (op_is_window == T) {
     source("C:/R/Source_files/Food_System_Relationships/keys/twitter_key.R")
-} else {
-    source('/Users/johne.meador/Documents/R/twitter_key.R')
 }
+# else {
+#     source('/Users/johne.meador/Documents/R/twitter_key.R')
+# }
 
 
 # CSA List  -----------
