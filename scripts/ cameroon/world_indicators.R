@@ -32,27 +32,33 @@ all_countries <-
 
 ?facet_grid_sc()
   
-all_countries %>% 
+cameroon_plot <- all_countries %>% 
   filter(str_detect(country_name, 'Cameroon'), 
          !str_detect(indicator_name, 'Rural')) %>% 
   ggplot(aes(year, value))+
-  geom_line(aes(color = cameroon), 
+  geom_line(color = 'black',
             size = 1, 
-            show.legend = T)+
+            show.legend = F)+
   scale_color_manual(values = c(
     adjustcolor('grey', .25), 
     'black'
   ), name = 'Country', 
   labels = c('All other', 'Cameroon'))+
   scale_x_continuous(limits = c(1990, 2021))+
-  scale_y_continuous(labels = logger)+
   theme_minimal()+
   theme(plot.margin = margin(1,1,1,1, 'cm'), 
         legend.position = c(.85, .25))+
-  facet_wrap(~indicator_name, scales = 'free')
+  facet_wrap(~indicator_name, scales = 'free',
+             labeller = label_wrap_gen(width = 50, multi_line = TRUE))+
+  labs(title = 'Cameroon - World Bank Indicators', 
+       caption = 'Data are from https://data.worldbank.org/indicator', 
+       x = 'Year',
+       y = NULL)
   
-  
-  
+ggsave(cameroon_plot, 
+ width = 11, 
+ height = 8, 
+ filename = 'Research_proposals/DIDA/png/world_bank.png')  
   
   
   
