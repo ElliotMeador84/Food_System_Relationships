@@ -4,11 +4,8 @@ library(lubridate)
 
 op_is_window <- Sys.info()[1] == "Windows"
 
-if (op_is_window == T) {
-    source('C:/R/all_functions.R')
-} else {
-    source('~/Downloads/all_functions.R')
-}
+source('/Users/emeador/OneDrive - SRUC/all_functions.R')
+
 
 #
 flatten <- purrr::flatten
@@ -19,24 +16,12 @@ flatten <- purrr::flatten
 if (op_is_window == T) {
     source("C:/R/Source_files/Food_System_Relationships/keys/twitter_key.R")
 }
-# else {
-#     source('/Users/johne.meador/Documents/R/twitter_key.R')
-# }
+
 
 
 # CSA List  -----------
 
-
-
-if (op_is_window == T) {
-    load(
-        'C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData'
-    )
-} else {
-    load(
-        '/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData'
-    )
-}
+load('/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/profile_ls.RData')
 
 
 # # Import stakeholder list ----------
@@ -109,11 +94,8 @@ Tweets_mention_new <- bind_rows(
 
 
 
-if(op_is_window == T){
-    load('C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
-} else {
-    load('/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
-}
+load('/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+
 
 
 
@@ -125,11 +107,9 @@ Tweets_mention <-
               Tweets_mention_new) %>%
     distinct()
 
-if(op_is_window == T){
-    save(Tweets_mention, file = 'C:/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
-} else {
-    save(Tweets_mention, file = '/Users/johne.meador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
-}
+
+save(Tweets_mention, file = '/Users/emeador/OneDrive - SRUC/Food_System_Relationships/data/Tweets_mention.RData')
+
 
 
 
